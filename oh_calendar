@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# openHAB holiday update script
+
+cd /home/user/openhab
+/usr/bin/python oh_calendar.py --noauth_local_webserver
+
