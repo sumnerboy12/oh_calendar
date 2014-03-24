@@ -98,19 +98,15 @@ def main(argv):
   dateQueryMinStr = dateQueryMin.isoformat() + 'Z'
   dateQueryMaxStr = dateQueryMax.isoformat() + 'Z'
   
-  # Supports up to 5 calendar ids
+  # Check each calendar in turn
   isHoliday = 'OFF'  
-  for i in range(5):
-    key = 'calendar_id' + str(i)
-    if key not in conf:
-      continue
-    calendar_id = conf[key]
+  for calendar in conf['calendars']:
     try:
       # The Calendar API's events().list method returns paginated results, so we
       # have to execute the request in a paging loop. First, build the
       # request object. The arguments provided are:
       #   primary calendar for user
-      request = service.events().list(calendarId=calendar_id, timeMin=dateQueryMinStr, timeMax=dateQueryMaxStr)
+      request = service.events().list(calendarId=calendar, timeMin=dateQueryMinStr, timeMax=dateQueryMaxStr)
       # Loop until all pages have been processed.
       while request != None:
         # Get the next page.
@@ -119,7 +115,7 @@ def main(argv):
         # returns a list of item objects (events).
         events = response.get('items', [])
         if len(events) > 0:
-          print "%s is reporting a holiday" % calendar_id
+          print "%s is reporting a holiday" % calendar
           isHoliday = 'ON'
         request = service.events().list_next(request, response)
         
