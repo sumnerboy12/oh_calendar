@@ -115,7 +115,7 @@ def main(argv):
         # returns a list of item objects (events).
         events = response.get('items', [])
         if len(events) > 0:
-          print "%s is reporting a holiday" % calendar
+          #print "%s is reporting a holiday" % calendar
           isHoliday = 'ON'
         request = service.events().list_next(request, response)
         
