@@ -127,9 +127,11 @@ def main(argv):
   server = conf['server']
   port = conf['port']
   itemname = conf['itemname']
+  username = conf['username']
+  password = conf['password']
 
   # Send an update to the openHAB REST API
-  url = 'http://' + server + ':' + str(port) + '/rest/items/' + itemname + '/state'
+  url = 'http://' + username + ':' + password + '@' + server + ':' + str(port) + '/rest/items/' + itemname + '/state'
   headers = { 'Content-Type': 'text/plain' }
   try:
     r = requests.put(url, headers=headers, data=isHoliday)
