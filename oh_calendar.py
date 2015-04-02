@@ -37,6 +37,7 @@ from apiclient import discovery
 from oauth2client import file
 from oauth2client import client
 from oauth2client import tools
+from dateutil.parser import parse
 
 # Parser for command-line arguments.
 parser = argparse.ArgumentParser(
@@ -91,13 +92,15 @@ def main(argv):
     sys.exit(1)
   
   # Work out what dates to query the calendar (i.e. today only)
+  # NOTE: this now seems to return events from tomorrow as well
+  #       even if I shrink the query to < 1 day
   dateQueryMin = datetime.combine(date.today(), time(0, 0))
   dateQueryMax = dateQueryMin + timedelta(days=1)
   
   # Format for our request
   dateQueryMinStr = dateQueryMin.isoformat() + 'Z'
   dateQueryMaxStr = dateQueryMax.isoformat() + 'Z'
-  
+
   # Check each calendar in turn
   isHoliday = 'OFF'  
   for calendar in conf['calendars']:
@@ -114,9 +117,14 @@ def main(argv):
         # Accessing the response like a dict object with an 'items' key
         # returns a list of item objects (events).
         events = response.get('items', [])
-        if len(events) > 0:
-          #print "%s is reporting a holiday" % calendar
-          isHoliday = 'ON'
+        for event in events:
+          # Check each events start date as this query can return dates outside
+          # our query range
+          start = event.get('start').get('date')
+          if parse(start) == dateQueryMin:
+            #print "%s is reporting a holiday: %s" % (calendar, event.get('summary'))
+            isHoliday = 'ON'
+        # Keep processing
         request = service.events().list_next(request, response)
         
     except client.AccessTokenRefreshError:
